@@ -75,8 +75,8 @@ git clone https://github.com/snowolf-zlex/Jetson-OS-Toolkit/blob/main/Jetson_Dev
 ### 5. 可选项确认：是否压缩及摘要
 
 默认使用xz进行要做，并对压缩包做SHA1摘要
-> 是否压缩备份文件？(y/n): y
-> 是否生成SHA1校验和？(y/n): y
+> 是否压缩备份文件？(y/n): y  
+> 是否生成SHA1校验和？(y/n): y  
 
 ### 6. 执行压缩（xz）
 
