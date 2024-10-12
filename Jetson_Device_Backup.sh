@@ -29,7 +29,7 @@ function get_device_address() {
 
 # 提示用户输入备份文件名
 function get_backup_name() {
-    read -p "请输入备份文件名称 (例如 Jetson_Image_20230402): " BACKUP_NAME
+    read -p "请输入备份文件名称 (例如 Jetson_Image_20230402.img): " BACKUP_NAME
     echo "$BACKUP_NAME"
 }
 
