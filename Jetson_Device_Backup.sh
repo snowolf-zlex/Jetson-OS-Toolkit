@@ -91,7 +91,8 @@ function main() {
 
     # 生成带日期的镜像文件名和路径
     local FILE_NAME="${BACKUP_NAME}_$(date +%Y%m%d).img"
-    local FILE_PATH=~/${FILE_NAME}
+    # 镜像文件将存储在当前脚本执行路径下
+    local FILE_PATH=./${FILE_NAME}
 
     # 步骤4：开始备份
     backup_device "$DEVICE_ADDRESS" "$FILE_PATH"
