@@ -82,10 +82,10 @@ git clone https://github.com/snowolf-zlex/Jetson-OS-Toolkit/blob/main/Jetson_Dev
 
 > 开始压缩备份文件  
 
-### 5. 执行摘要（SHA1）
+### 7. 执行摘要（SHA1）
 
 > 计算镜像文件的SHA1校验和...
 
-### 6. 完成备份
+### 8. 完成备份
 
 > 备份完成，镜像文件路径: ./Jetson_Orin_Nano_JP514_20231010.img
