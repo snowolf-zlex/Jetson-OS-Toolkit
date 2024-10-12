@@ -44,12 +44,27 @@ function confirm_backup_name() {
     fi
 }
 
+# 提示用户选择是否压缩和生成SHA1
+function prompt_options() {
+    read -p "是否压缩备份文件？(y/n): " COMPRESS_OPTION
+    read -p "是否生成SHA1校验和？(y/n): " SHA1_OPTION
+    echo "$COMPRESS_OPTION,$SHA1_OPTION"
+}
+
 # 备份磁盘为镜像文件
 function backup_device() {
     local DEVICE_ADDRESS=$1
     local FILE_PATH=$2
     echo "开始将 ${DEVICE_ADDRESS} 备份到 ${FILE_PATH}..."
     sudo dd if=$DEVICE_ADDRESS of=${FILE_PATH} bs=4M status=progress
+}
+
+
+# 压缩备份文件
+function compress_backup() {
+    local FILE_PATH=$1
+    echo "开始压缩备份文件 ${FILE_PATH}..."
+    xz "${FILE_PATH}"
 }
 
 # 根据操作系统选择SHA1命令并生成SHA1校验和
@@ -97,8 +112,20 @@ function main() {
     # 步骤4：开始备份
     backup_device "$DEVICE_ADDRESS" "$FILE_PATH"
 
-    # 步骤5：生成SHA1校验和并保存到文件
-    generate_sha1 "$FILE_PATH" "$FILE_NAME"
+    # 步骤5：提示用户选择压缩和SHA1选项
+    local OPTIONS=$(prompt_options)
+    IFS=',' read -r COMPRESS_OPTION SHA1_OPTION <<< "$OPTIONS"
+
+    # 步骤6：压缩备份文件（如果选择压缩）
+    if [[ "$COMPRESS_OPTION" == "y" ]]; then
+        compress_backup "$FILE_PATH"
+        FILE_PATH="${FILE_PATH}.xz"  # 更新文件路径为压缩后的文件
+    fi
+
+    # 步骤7：生成SHA1校验和（如果选择生成SHA1）
+    if [[ "$SHA1_OPTION" == "y" ]]; then
+        generate_sha1 "$FILE_PATH" "$(basename "$FILE_PATH" .xz)"
+    fi
 
     # 提示完成
     echo "备份完成，镜像文件路径: ${FILE_PATH}"
