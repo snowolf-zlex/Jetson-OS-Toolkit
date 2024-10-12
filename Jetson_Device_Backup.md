@@ -28,6 +28,11 @@
 #### 1. 克隆脚本，并赋予执行权限
 
 ``` shell
+# 切换到用于备份的存储路径下，如/dev/sda
+
+cd /dev/sda
+
+# 克隆脚本
 git clone https://github.com/snowolf-zlex/Jetson-OS-Toolkit#:~:text=2%20Commits-,Jetson_Device_Backup.sh,-Create%20Jetson_Device_Backup.sh
 chmod +x Jetson_Device_Backup.sh
 ```
