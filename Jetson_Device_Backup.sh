@@ -14,7 +14,7 @@ function list_disks() {
 
     if [[ "$OS_TYPE" == "Linux" ]]; then
         echo "检测到Linux操作系统，以下是当前磁盘列表："
-        lsblk
+        lsblk -d
     else
         echo "不支持的操作系统: $OS_TYPE"
         exit 1
