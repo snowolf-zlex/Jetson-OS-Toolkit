@@ -4,7 +4,7 @@
 # Jetson设备镜像备份脚本
 #
 # 自动检测操作系统，列出磁盘设备并提示用户选择
-# 生成镜像及其SHA1校验文件
+# 生成镜像，压缩镜像文件，并对其进行摘要（SHA1）
 ####################################
 
 # 检查操作系统类型并显示磁盘列表
@@ -58,7 +58,6 @@ function backup_device() {
     echo "开始将 ${DEVICE_ADDRESS} 备份到 ${FILE_PATH}..."
     sudo dd if=$DEVICE_ADDRESS of=${FILE_PATH} bs=4M status=progress
 }
-
 
 # 压缩备份文件
 function compress_backup() {
