@@ -64,7 +64,7 @@ function backup_device() {
 function compress_backup() {
     local FILE_PATH=$1
     echo "开始压缩备份文件 ${FILE_PATH}..."
-    xz "${FILE_PATH}"
+    xz -zvkT 5 "${FILE_PATH}"
 }
 
 # 根据操作系统选择SHA1命令并生成SHA1校验和
