@@ -113,7 +113,7 @@ install_additional_tools() {
     echo ""
     sleep 1
 
-    sudo add-apt-repository ppa:fossfreedom/indicator-sysmonitor
+    sudo add-apt-repository ppa:fossfreedom/indicator-sysmonitor -y
     sudo apt-get update
     sudo apt-get install indicator-sysmonitor -y
     indicator-sysmonitor &
