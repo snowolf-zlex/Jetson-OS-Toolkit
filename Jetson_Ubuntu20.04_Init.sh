@@ -77,7 +77,8 @@ install_python_env() {
         zlib1g-dev \
         libffi-dev \
         libssl-dev \
-        libgstrtspserver-1.0-dev
+        libgstrtspserver-1.0-dev \
+        v4l-utils
 
     echo "升级pip3"
     python3 -m pip install --upgrade pip
