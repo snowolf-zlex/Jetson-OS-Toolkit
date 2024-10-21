@@ -59,7 +59,7 @@ update_system() {
     sleep 1
 
     echo 'export PATH=$PATH:/usr/src/tensorrt/bin' >> ~/.bashrc
-    
+
     sleep 1
 }
 
@@ -94,7 +94,7 @@ install_python_env() {
     sudo rm /usr/bin/python
     sudo ln -s /usr/bin/python3 /usr/bin/python
 
-    echo 'export PATH=$PATH:/home/jetson/.local/bin' >> ~/.bashrc
+    echo 'export PATH=$PATH:$HOME/.local/bin' >> ~/.bashrc
 
     # 安装PyCUDA库
     echo ""
