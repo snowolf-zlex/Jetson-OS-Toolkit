@@ -144,7 +144,7 @@ install_jetson_stats() {
     echo ""
     sleep 1
     
-    sudo pip3 install jetson-stats
+    sudo pip3 install -U jetson-stats
     sudo systemctl restart jetson_stats.service
 }
 
