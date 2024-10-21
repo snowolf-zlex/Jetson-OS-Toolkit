@@ -61,7 +61,16 @@ install_python_env() {
     echo ""
     sleep 1
 
-    sudo apt install -y python3-dev python3-pip python3-venv libxml2-dev libxslt1-dev zlib1g-dev libffi-dev libssl-dev
+    sudo apt install -y \
+        python3-dev \
+        python3-pip \
+        python3-venv \
+        libxml2-dev \
+        libxslt1-dev \
+        zlib1g-dev \
+        libffi-dev \
+        libssl-dev \
+        libgstrtspserver-1.0-dev
 
     echo "升级pip3"
     python3 -m pip install --upgrade pip
