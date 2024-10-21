@@ -134,7 +134,7 @@ install_language_pack() {
     echo ""
     sleep 1
     
-    sudo apt-get install language-pack-zh-han* -y
+    sudo apt-get install language-pack-zh-hans* -y
 }
 
 # 函数：安装Jetson监控工具
