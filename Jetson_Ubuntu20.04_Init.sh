@@ -47,10 +47,17 @@ update_system() {
     echo ""
     sleep 1
     
-    sudo apt update && sudo apt upgrade -y
+    sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
 
     echo "安装必要系统工具"
     sudo apt install -y net-tools ssh vim apt-utils unrar p7zip-full
+
+    # 配置TensorRT
+    echo ""
+    echo "===== 配置TensorRT工具 ====="
+    echo ""
+    sleep 1
+    echo 'export PATH=$PATH:/usr/src/tensorrt/bin' >> ~/.bashrc
     sleep 1
 }
 
@@ -90,13 +97,6 @@ install_python_env() {
     echo ""
     sleep 1
     python3 -m pip install pycuda
-
-    # 配置TensorRT
-    echo ""
-    echo "===== 配置TensorRT工具 ====="
-    echo ""
-    sleep 1
-    echo 'export PATH=$PATH:/usr/src/tensorrt/bin' >> ~/.bashrc
 }
 
 # 函数：安装其他工具
