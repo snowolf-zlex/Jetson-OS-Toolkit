@@ -27,9 +27,20 @@ function get_device_address() {
     echo "$DEVICE_ADDRESS"
 }
 
+# 提示用户输入备份文件存储路径
+function get_backup_path() {
+    read -p "请输入备份文件存储路径 (例如 /home/user/backups): " BACKUP_PATH
+    # 检查路径是否存在，如果不存在则创建
+    if [[ ! -d "$BACKUP_PATH" ]]; then
+        mkdir -p "$BACKUP_PATH"
+        echo "创建存储路径: $BACKUP_PATH"
+    fi
+    echo "$BACKUP_PATH"
+}
+
 # 提示用户输入备份文件名
 function get_backup_name() {
-    read -p "请输入备份文件名称 (例如 Jetson_Image_20230402.img): " BACKUP_NAME
+    read -p "请输入备份文件名称 (例如 jetson_orin_nx_jp5.1.4_opencv4.10.0withcuda_torch2.1.0_torchvison0.16.0_tensorflow2.12.0): " BACKUP_NAME
     echo "$BACKUP_NAME"
 }
 
@@ -96,32 +107,34 @@ function main() {
     # 步骤1：列出磁盘列表
     list_disks
 
-    # 步骤2：提示用户输入设备地址和备份文件名
+    # 步骤2：提示用户输入设备地址和存储路径
     local DEVICE_ADDRESS=$(get_device_address)
+    local BACKUP_PATH=$(get_backup_path)
+
+    # 步骤3：提示用户输入备份文件名
     local BACKUP_NAME=$(get_backup_name)
 
-    # 步骤3：确认备份文件名
+    # 步骤4：确认备份文件名
     confirm_backup_name "$BACKUP_NAME"
 
     # 生成带日期的镜像文件名和路径
     local FILE_NAME="${BACKUP_NAME}_$(date +%Y%m%d).img"
-    # 镜像文件将存储在当前脚本执行路径下
-    local FILE_PATH=./${FILE_NAME}
+    local FILE_PATH="${BACKUP_PATH}/${FILE_NAME}"
 
-    # 步骤4：开始备份
+    # 步骤5：开始备份
     backup_device "$DEVICE_ADDRESS" "$FILE_PATH"
 
-    # 步骤5：提示用户选择压缩和SHA1选项
+    # 步骤6：提示用户选择压缩和SHA1选项
     local OPTIONS=$(prompt_options)
     IFS=',' read -r COMPRESS_OPTION SHA1_OPTION <<< "$OPTIONS"
 
-    # 步骤6：压缩备份文件（如果选择压缩）
+    # 步骤7：压缩备份文件（如果选择压缩）
     if [[ "$COMPRESS_OPTION" == "y" ]]; then
         compress_backup "$FILE_PATH"
         FILE_PATH="${FILE_PATH}.xz"  # 更新文件路径为压缩后的文件
     fi
 
-    # 步骤7：生成SHA1校验和（如果选择生成SHA1）
+    # 步骤8：生成SHA1校验和（如果选择生成SHA1）
     if [[ "$SHA1_OPTION" == "y" ]]; then
         generate_sha1 "$FILE_PATH" "$(basename "$FILE_PATH" .xz)"
     fi
