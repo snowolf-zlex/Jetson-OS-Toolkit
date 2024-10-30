@@ -1,24 +1,32 @@
-
 #!/bin/bash
 
 ####################################
-# Jetson设备镜像备份脚本
-#
-# 自动检测操作系统，列出磁盘设备并提示用户选择
-# 生成镜像，压缩镜像文件，并对其进行摘要（SHA1）
+# 脚本名称：Jetson设备镜像备份脚本
+# 脚本用途：备份源磁盘到镜像文件
+# 适用范围：Linux、Unix（MacOS）
+# 脚本作者：Snowolf
+# 创建日期：2024-09-30
 ####################################
+
+# 获取当前操作系统类型
+OS_TYPE=$(uname)
+
+# 检查操作系统类型
+function check_os_type() {
+    echo "当前操作系统为: $OS_TYPE"
+    if [[ "$OS_TYPE" != "Linux" && "$OS_TYPE" != "Darwin" ]]; then
+        echo "不支持的操作系统: $OS_TYPE"
+        exit 1
+    fi
+}
 
 # 检查操作系统类型并显示磁盘列表
 function list_disks() {
-    local OS_TYPE=$(uname)
-    echo "当前操作系统为: $OS_TYPE"
-
+    echo "检测到${OS_TYPE}操作系统，以下是当前磁盘列表："
     if [[ "$OS_TYPE" == "Linux" ]]; then
-        echo "检测到Linux操作系统，以下是当前磁盘列表："
         lsblk -d
-    else
-        echo "不支持的操作系统: $OS_TYPE"
-        exit 1
+    elif [[ "$OS_TYPE" == "Darwin" ]]; then
+        diskutil list
     fi
 }
 
@@ -85,14 +93,11 @@ function generate_sha1() {
     local SHA1_FILE="${FILE_PATH}.sha1"
 
     # 检查操作系统并选择合适的SHA1命令
-    local OS_TYPE=$(uname)
     local SHA1_CMD
-
     if [[ "$OS_TYPE" == "Linux" ]]; then
         SHA1_CMD="sha1sum"
-    else
-        echo "不支持的操作系统: $OS_TYPE"
-        exit 1
+    elif [[ "$OS_TYPE" == "Darwin" ]]; then
+        SHA1_CMD="shasum -a 1"
     fi
 
     # 计算SHA1校验和并保存到文件
@@ -105,37 +110,40 @@ function generate_sha1() {
 
 # 主函数
 function main() {
-    # 步骤1：列出磁盘列表
+    # 步骤1：检查操作系统类型
+    check_os_type
+
+    # 步骤2：列出磁盘列表
     list_disks
 
-    # 步骤2：提示用户输入设备地址和存储路径
+    # 步骤3：提示用户输入设备地址和存储路径
     local DEVICE_ADDRESS=$(get_device_address)
     local BACKUP_PATH=$(get_backup_path)
 
-    # 步骤3：提示用户输入备份文件名
+    # 步骤4：提示用户输入备份文件名
     local BACKUP_NAME=$(get_backup_name)
 
-    # 步骤4：确认备份文件名
+    # 步骤5：确认备份文件名
     confirm_backup_name "$BACKUP_NAME"
 
     # 生成带日期的镜像文件名和路径
     local FILE_NAME="${BACKUP_NAME}_$(date +%Y%m%d).img"
     local FILE_PATH="${BACKUP_PATH}/${FILE_NAME}"
 
-    # 步骤5：开始备份
+    # 步骤6：开始备份
     backup_device "$DEVICE_ADDRESS" "$FILE_PATH"
 
-    # 步骤6：提示用户选择压缩和SHA1选项
+    # 步骤7：提示用户选择压缩和SHA1选项
     local OPTIONS=$(prompt_options)
     IFS=',' read -r COMPRESS_OPTION SHA1_OPTION <<< "$OPTIONS"
 
-    # 步骤7：压缩备份文件（如果选择压缩）
+    # 步骤8：压缩备份文件（如果选择压缩）
     if [[ "$COMPRESS_OPTION" == "y" ]]; then
         compress_backup "$FILE_PATH"
         FILE_PATH="${FILE_PATH}.xz"  # 更新文件路径为压缩后的文件
     fi
 
-    # 步骤8：生成SHA1校验和（如果选择生成SHA1）
+    # 步骤9：生成SHA1校验和（如果选择生成SHA1）
     if [[ "$SHA1_OPTION" == "y" ]]; then
         generate_sha1 "$FILE_PATH" "$(basename "$FILE_PATH" .xz)"
     fi
