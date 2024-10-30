@@ -24,7 +24,7 @@ function check_os_type() {
 function list_disks() {
     if [[ "$OS_TYPE" == "Linux" ]]; then
         echo "以下是当前磁盘列表："
-        lsblk -d
+        lsblk -d -n -e 1,2,7 | grep -v "SWAP"
     elif [[ "$OS_TYPE" == "Darwin" ]]; then
         echo "以下是当前磁盘列表："
         diskutil list
