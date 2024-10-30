@@ -32,7 +32,7 @@ function list_disks() {
 }
 
 # 提示用户选择源磁盘设备
-function get_device_address() {
+function get_source_device_address() {
     read -p "请输入源磁盘设备地址 (例如 /dev/sdb 或 /dev/disk2): " DEVICE_ADDRESS
     echo "$DEVICE_ADDRESS"
 }
@@ -41,6 +41,32 @@ function get_device_address() {
 function get_target_device_address() {
     read -p "请输入目标磁盘设备地址 (例如 /dev/sdc 或 /dev/disk3): " TARGET_DEVICE_ADDRESS
     echo "$TARGET_DEVICE_ADDRESS"
+}
+
+# 获取磁盘容量
+function get_disk_size() {
+    local DEVICE=$1
+    if [[ "$OS_TYPE" == "Linux" ]]; then
+        DISK_SIZE=$(lsblk -b -n -o SIZE "$DEVICE")
+    elif [[ "$OS_TYPE" == "Darwin" ]]; then
+        DISK_SIZE=$(diskutil info "$DEVICE" | grep "Disk Size" | awk '{print $3}')
+        # 转换到字节
+        DISK_SIZE=$(($DISK_SIZE * 1024 * 1024))
+    fi
+    echo "$DISK_SIZE"
+}
+
+# 检查目标磁盘容量是否满足条件
+function check_disk_capacity() {
+    local SOURCE_DEVICE=$1
+    local TARGET_DEVICE=$2
+    local SOURCE_SIZE=$(get_disk_size "$SOURCE_DEVICE")
+    local TARGET_SIZE=$(get_disk_size "$TARGET_DEVICE")
+
+    if [[ "$TARGET_SIZE" -lt "$SOURCE_SIZE" ]]; then
+        echo "错误: 目标磁盘容量 (${TARGET_SIZE} 字节) 小于源磁盘容量 (${SOURCE_SIZE} 字节)。"
+        exit 1
+    fi
 }
 
 # 克隆磁盘到目标磁盘
@@ -53,8 +79,11 @@ function clone_device() {
 
 # 克隆处理函数
 function clone_process() {
-    local DEVICE_ADDRESS=$(get_device_address)
+    local DEVICE_ADDRESS=$(get_source_device_address)
     local TARGET_DEVICE_ADDRESS=$(get_target_device_address)
+
+    # 检查磁盘容量
+    check_disk_capacity "$DEVICE_ADDRESS" "$TARGET_DEVICE_ADDRESS"
 
     # 开始克隆磁盘
     clone_device "$DEVICE_ADDRESS" "$TARGET_DEVICE_ADDRESS"
