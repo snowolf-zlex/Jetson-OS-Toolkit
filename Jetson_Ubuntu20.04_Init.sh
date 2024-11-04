@@ -24,8 +24,8 @@ configure_swap() {
     # 获取机器总内存大小，单位MB
     MEM_TOTAL=$(grep MemTotal /proc/meminfo | awk '{print $2}')
     
-    # 计算建议的交换空间大小，设定为内存的2倍，最大值16GB
-    SWAP_SIZE=$(( MEM_TOTAL * 2 / 1024 ))
+    # 计算建议的交换空间大小，设定为内存的1倍，最大值16GB
+    SWAP_SIZE=$(( MEM_TOTAL * 1 / 1024 ))
     if [ $SWAP_SIZE -gt 16384 ]; then
         SWAP_SIZE=16384
     fi
