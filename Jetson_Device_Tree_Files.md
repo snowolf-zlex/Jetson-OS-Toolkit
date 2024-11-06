@@ -90,4 +90,4 @@ LABEL primary
       APPEND ${cbootargs} quiet root=/dev/sda1 rw rootwait rootfstype=ext4 console=ttyS0,115200n8 console=tty0 fbcon=map:0 net.ifnames=0
 ```
 
-猜测：替换dtb文件，可能可以支持不同的Jetson设备。
+***如果要使用第三方载板，需要反编译或替换对应的设备树文件***
