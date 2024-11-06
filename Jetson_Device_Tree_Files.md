@@ -82,12 +82,18 @@ extlinux.conf 是 extlinux bootloader 使用的配置文件，它通常用于 Li
 Jetson通过配置`extlinux.conf`文件加载该设备树文件，注意下文关键字`FDT`。
 
 ```txt
+TIMEOUT 30
+DEFAULT primary
+
+MENU TITLE Jetson Boot Options
+
 LABEL primary
-      MENU LABEL primary kernel
-      LINUX /boot/Image
-      FDT /boot/dtb/kernel_tegra210-p3448-0000-p3449-0000-b00.dtb
-      INITRD /boot/initrd
-      APPEND ${cbootargs} quiet root=/dev/sda1 rw rootwait rootfstype=ext4 console=ttyS0,115200n8 console=tty0 fbcon=map:0 net.ifnames=0
+    MENU LABEL Jetson Nano 4GB (Primary Kernel)
+    LINUX /boot/Image
+    FDT /boot/dtb/tegra210-p3448-0000-p3449-0000-b00.dtb
+    INITRD /boot/initrd
+    APPEND ${cbootargs} quiet root=/dev/mmcblk0p1 rw rootwait rootfstype=ext4 console=ttyS0,115200n8 console=tty0 fbcon=map:0 net.ifnames=0
+
 ```
 
 ***如果要使用第三方载板，需要反编译或替换对应的设备树文件***
