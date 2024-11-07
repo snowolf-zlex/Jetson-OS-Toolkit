@@ -82,10 +82,22 @@ install_python_env() {
         libgstrtspserver-1.0-dev \
         v4l-utils
 
+
+    echo ""
+    echo "===== 配置 pip 源 ====="
+    echo ""
+    sleep 1
+    
+    mkdir -p ~/.pip
+
+    # 写入配置文件内容
+    echo "[global]" > ~/.pip/pip.conf
+    echo "index-url = https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple" >> ~/.pip/pip.conf
+
     echo "升级pip3"
     python3 -m pip install --upgrade pip
-    python3 -m pip install wheel==0.35 numpy==1.23.5 protobuf==3.20.2 onnx -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple 
-
+    python3 -m pip install wheel==0.35 numpy==1.23.5 protobuf==3.20.2 onnx 
+    
     echo ""
     echo "===== 修正Python软链接 ====="
     echo ""
