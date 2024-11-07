@@ -84,7 +84,7 @@ install_python_env() {
 
     echo "升级pip3"
     python3 -m pip install --upgrade pip
-    python3 -m pip install wheel==0.35 numpy==1.23.5 protobuf==3.20.2 onnx
+    python3 -m pip install wheel==0.35 numpy==1.23.5 protobuf==3.20.2 onnx -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple 
 
     echo ""
     echo "===== 修正Python软链接 ====="
