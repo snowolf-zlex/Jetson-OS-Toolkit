@@ -3,10 +3,10 @@
 # ----------------------------
 # Jetson系统初始化 
 # 基于Ubuntu 20.04 LTS 
-# V1.2
+# V1.3
 # By Snowolf
 # Create 2023-09-04
-# Update 2024-10-21
+# Update 2024-11-09
 # ----------------------------
 
 echo ""
@@ -62,8 +62,11 @@ update_system() {
     echo ""
     sleep 1
 
-    echo 'export PATH=$PATH:/usr/src/tensorrt/bin' >> ~/.bashrc
-
+    # 确保 export PATH=/usr/src/tensorrt/bin 语句在 ~/.bashrc 中不存在，若不存在则追加
+    if ! grep -q "export PATH=\$PATH:/usr/src/tensorrt/bin" ~/.bashrc; then
+        echo 'export PATH=$PATH:/usr/src/tensorrt/bin' >> ~/.bashrc
+    fi
+    
     sleep 1
 }
 
@@ -110,7 +113,10 @@ install_python_env() {
     sudo rm /usr/bin/python
     sudo ln -s /usr/bin/python3 /usr/bin/python
 
-    echo 'export PATH=$PATH:$HOME/.local/bin' >> ~/.bashrc
+    # 确保 export PATH 语句在 ~/.bashrc 中不存在，若不存在则追加
+    if ! grep -q "export PATH=\$PATH:\$HOME/.local/bin" ~/.bashrc; then
+        echo 'export PATH=$PATH:$HOME/.local/bin' >> ~/.bashrc
+    fi
 
     # 安装PyCUDA库
     echo ""
