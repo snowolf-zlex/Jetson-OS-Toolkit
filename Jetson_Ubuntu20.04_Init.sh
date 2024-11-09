@@ -25,14 +25,18 @@ configure_swap() {
     MEM_TOTAL=$(grep MemTotal /proc/meminfo | awk '{print $2}')
     
     # 计算建议的交换空间大小，设定为内存的1倍，最大值16GB
-    SWAP_SIZE=$(( MEM_TOTAL * 1 / 1024 ))
-    if [ $SWAP_SIZE -gt 16384 ]; then
-        SWAP_SIZE=16384
+    SWAP_SIZE_MB=$(( MEM_TOTAL / 1024 ))  # 以MB为单位
+    SWAP_SIZE_GB=$(( (SWAP_SIZE_MB + 1023) / 1024 ))  # 将MB转换为GB，并四舍五入到整数
+    
+    # 最大交换空间为16GB
+    if [ $SWAP_SIZE_GB -gt 16 ]; then
+        SWAP_SIZE_GB=16
     fi
 
-    echo "设置交换空间大小为 ${SWAP_SIZE}MB"
+    echo "设置交换空间大小为 ${SWAP_SIZE_GB}GB"
     
-    sudo fallocate -l "${SWAP_SIZE}M" /var/swapfile
+    # 创建交换文件
+    sudo fallocate -l "${SWAP_SIZE_GB}G" /var/swapfile
     sudo chmod 600 /var/swapfile
     sudo mkswap /var/swapfile
     sudo swapon /var/swapfile
