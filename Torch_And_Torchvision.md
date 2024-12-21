@@ -65,9 +65,8 @@ chmod +x get_torchvision.sh
 
 输入`torch`版本号，以获取`torchvision`对应版本号。
 
+如果你使用的是 `torch 1.13`，则对应的 `torchvision` 版本为 `0.14`，并且支持 Python 版本范围为 `>=3.7.2, <=3.10`。
+
 ```shell
 ./get_torchvision.sh 1.13.0
 ```
-如果你使用的是 `torch 2.4`，则对应的 `torchvision` 版本为 `0.19`，并且支持 Python 版本范围为 `>=3.8, <=3.12`。
-
-如果你使用的是 `torch 1.13`，则对应的 `torchvision` 版本为 `0.14`，并且支持 Python 版本范围为 `>=3.7.2, <=3.10`。
