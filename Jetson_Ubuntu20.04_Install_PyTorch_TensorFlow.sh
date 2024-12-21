@@ -48,15 +48,34 @@ install_pytorch() {
 # Function to install TorchVision
 install_torchvision() {
   echo ""
-  echo "Complie And Install TorchVision"
+  echo "Compile And Install TorchVision"
   echo ""
+
+  # 定义版本号变量
+  VERSION="v0.16.0"
+  PYTHON_VERSION="cp38-cp38"  # 根据您的 Python 版本调整
+  ARCH="linux_aarch64"        # 根据您的架构调整
+
   sleep 1
+
+  # 安装构建工具
   python3 -m pip install --user setuptools wheel
-  git clone --branch v0.16.0 https://github.com/pytorch/vision torchvision
+
+  # 克隆指定版本的代码
+  git clone --branch $VERSION https://github.com/pytorch/vision torchvision
   cd torchvision
-  export BUILD_VERSION=0.16.0
+
+  # 设置版本环境变量
+  export BUILD_VERSION=${VERSION#"v"}  # 去掉前缀 v
+
+  # 构建 .whl 文件
   python3 setup.py bdist_wheel
-  python3 -m pip install dist/torchvision-0.16.0-cp38-cp38-linux_aarch64.whl
+
+  # 安装生成的 .whl 文件
+  WHEEL_FILE="dist/torchvision-${BUILD_VERSION}-${PYTHON_VERSION}-${ARCH}.whl"
+  python3 -m pip install --user $WHEEL_FILE
+
+  echo "TorchVision ${BUILD_VERSION} installed successfully!"
   #python3 setup.py install --user
 }
 
