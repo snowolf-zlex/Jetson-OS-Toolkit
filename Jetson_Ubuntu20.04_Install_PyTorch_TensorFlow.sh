@@ -51,10 +51,13 @@ install_torchvision() {
   echo "Complie And Install TorchVision"
   echo ""
   sleep 1
+  python3 -m pip install --user setuptools wheel
   git clone --branch v0.16.0 https://github.com/pytorch/vision torchvision
   cd torchvision
   export BUILD_VERSION=0.16.0
-  python3 setup.py install --user
+  python3 setup.py bdist_wheel
+  python3 -m pip install dist/torchvision-0.16.0-cp38-cp38-linux_aarch64.whl
+  #python3 setup.py install --user
 }
 
 # Function to install TensorFlow
