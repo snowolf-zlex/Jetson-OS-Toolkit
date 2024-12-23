@@ -57,6 +57,8 @@ dtc -I dts -O dtb -o tegra210-p3448-0002-p3449-0000-b00.dtb tegra210-p3448-0002-
 
 获得`tegra210-p3448-0002-p3449-0000-b00.dtb`后，即可使用命令行进行烧录。
 
+以JetPack 4.6.6为例，切换到对应目录，并执行烧录动作。
+
 ```sehll
 cd ~/nvidia/nvidia_sdk/JetPack_4.6.6_Linux_JETSON_NANO_TARGETS/Linux_for_Tegra
 sudo ./flash.sh jetson-nano-emmc mmcblk0p1
