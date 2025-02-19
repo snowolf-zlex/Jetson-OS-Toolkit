@@ -68,7 +68,6 @@ build_torchvision() {
     cd torchvision
     git checkout $TORCHVISION_VERSION
 
-
     # 设置版本环境变量
     export BUILD_VERSION=${TORCHVISION_VERSION#"v"}  # 去掉前缀v
 
@@ -95,9 +94,9 @@ print(f"PyTorch 版本: {torch.__version__}")
 print(f"TorchVision 版本: {torchvision.__version__}")
 print(f"CUDA 可用: {torch.cuda.is_available()}")
 if torch.cuda.is_available():
-    print(f"GPU 设备: {torch.cuda.get_device_name(0)}")
+    print(f"[INFO] GPU 设备: {torch.cuda.get_device_name(0)}")
 else:
-    print("警告: 未检测到 GPU 加速支持！")
+    print("[WARNING] 未检测到 GPU 加速支持！")
 EOF
 }
 
