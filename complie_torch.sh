@@ -42,10 +42,10 @@ build_torch() {
     git submodule sync
     git submodule update --init --recursive  # 确保子模块正确初始化
 
-    # export USE_MKLDNN=1          # 启用 Intel MKL-DNN 加速
-    # export USE_OPENMP=1          # 启用 OpenMP 并行
-    # export USE_NINJA=1           # 使用 Ninja 构建系统
-    # export BUILD_TEST=0          # 跳过测试以加快编译速度
+    export USE_MKLDNN=1          # 启用 Intel MKL-DNN 加速
+    export USE_OPENMP=1          # 启用 OpenMP 并行
+    export USE_NINJA=1           # 使用 Ninja 构建系统
+    export BUILD_TEST=0          # 跳过测试以加快编译速度
 
     # 清理历史缓存
     python3 setup.py clean
