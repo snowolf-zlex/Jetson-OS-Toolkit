@@ -6,7 +6,7 @@ wget https://developer.nvidia.com/downloads/embedded/l4t/r36_release_v4.3/releas
 
 echo "解压内核"
 tar xf Jetson_Linux_r36.4.3_aarch64.tbz2 
-sudo tar xpf Tegra_Linux_Sample-Root-Filesystem_R36.4.3_aarch64.tbz2 -C Linux_for_Tegra/rootfs/
+sudo tar xpf Tegra_Linux_Sample-Root-Filesystem_r36.4.3_aarch64.tbz2 -C Linux_for_Tegra/rootfs/
 cd Linux_for_Tegra/
 
 echo ""
