@@ -9,9 +9,10 @@ tar xf Jetson_Linux_r36.4.3_aarch64.tbz2
 sudo tar xpf Tegra_Linux_Sample-Root-Filesystem_r36.4.3_aarch64.tbz2 -C Linux_for_Tegra/rootfs/
 cd Linux_for_Tegra/
 
-echo ""
+echo "准备依赖包"
 sudo ./tools/l4t_flash_prerequisites.sh
 
+echo "镜像文件准备"
 sudo ./apply_binaries.sh
 
 echo "系统烧录 SSD"
