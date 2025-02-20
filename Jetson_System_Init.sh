@@ -229,7 +229,7 @@ install_jetson_fan_control() {
 
 # 主菜单
 main_menu() {
-    MENU_OPTIONS="1 系统初始化\n2 配置VNC（仅限Ubuntu 18 / 20）\n3 安装系统工具\n4 安装风扇驱动（仅限Jetson Nano / TX2）\n0 退出"
+    MENU_OPTIONS="1 系统初始化 2 配置VNC（仅限Ubuntu18/20）3 安装系统工具 4 安装风扇驱动（仅限JetsonNano/TX2）0 退出"
     OPTION=$(whiptail --title "Installation Options" --menu "Choose an option" 15 60 5 $MENU_OPTIONS 3>&1 1>&2 2>&3)
 
     case $OPTION in
