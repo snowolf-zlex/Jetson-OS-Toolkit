@@ -1,11 +1,11 @@
 #!/bin/bash
 
-echo "=============================================================="
+echo "====================================================================="
 echo "Jetson Device Check Program"
 echo "Version: 1.3.0"
 echo "Created By Snowolf"
-echo "URL: https://github.com/snowolf-zlex/Jetson-OS-Toolkit.git"
-echo "============================================================"
+echo "GitHub URL: https://github.com/snowolf-zlex/Jetson-OS-Toolkit.git"
+echo "====================================================================="
 
 echo "=========="
 echo "NVCC"
