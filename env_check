@@ -40,7 +40,13 @@ python3 -c "import cv2; print(cv2.getBuildInformation())"
 python3 -c "import cv2 as cv; print('OpenCV Python Version: ',cv.__version__)"
 python3 -c "import cv2 as cv; print('OpenCV Python Path: ',cv.__file__)"
 python3 -c "import cv2; print('OpenCV with CUDA: ', cv2.cuda.getCudaEnabledDeviceCount() > 0)"
-./opencv_cuda_check
+
+if [ -f "./opencv_cuda_check" ]; then
+    echo "Executing OpenCV CUDA check..."
+    ./opencv_cuda_check
+else
+    echo "opencv_cuda_check file not found. Skipping..."
+fi
 
 echo ""
 echo "=========="
