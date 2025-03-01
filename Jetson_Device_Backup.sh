@@ -6,6 +6,7 @@
 # 适用范围：Linux、Unix（MacOS）
 # 脚本作者：Snowolf
 # 创建日期：2024-09-30
+# 更新日期：2025-03-01
 ####################################
 
 # 获取当前操作系统类型
@@ -32,13 +33,13 @@ function list_disks() {
 
 # 提示用户选择磁盘设备
 function get_device_address() {
-    read -p "请输入要备份的Jetson设备地址 (例如 /dev/sdb): " DEVICE_ADDRESS
+    read -e -p "请输入要备份的Jetson设备地址 (例如 /dev/sdb): " DEVICE_ADDRESS
     echo "$DEVICE_ADDRESS"
 }
 
 # 提示用户输入备份文件存储路径
 function get_backup_path() {
-    read -p "请输入备份文件存储路径 (例如 /home/user/backups): " BACKUP_PATH
+    read -e -p "请输入备份文件存储路径 (例如 /home/user/backups): " BACKUP_PATH
     # 检查路径是否存在，如果不存在则创建
     if [[ ! -d "$BACKUP_PATH" ]]; then
         mkdir -p "$BACKUP_PATH"
@@ -49,7 +50,7 @@ function get_backup_path() {
 
 # 提示用户输入备份文件名
 function get_backup_name() {
-    read -p "请输入备份文件名称 (例如 jetson_orin_nx_jp5.1.4_opencv4.10.0withcuda_torch2.1.0_torchvison0.16.0_tensorflow2.12.0): " BACKUP_NAME
+    read -e -p "请输入备份文件名称 (例如 jetson_orin_nx_jp5.1.4_opencv4.10.0withcuda_torch2.1.0_torchvison0.16.0_tensorflow2.12.0): " BACKUP_NAME
     echo "$BACKUP_NAME"
 }
 
