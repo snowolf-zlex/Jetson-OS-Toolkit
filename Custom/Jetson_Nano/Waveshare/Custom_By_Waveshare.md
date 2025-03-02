@@ -45,7 +45,7 @@ uhs-mask = <0xc>;
 ```
 
 参考下图
-![alt text](image-1.png)
+![alt text](dts.png)
 
 ### 5. 编译dtb文件
 
