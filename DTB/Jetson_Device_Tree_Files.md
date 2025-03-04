@@ -15,27 +15,31 @@ Jetson 设备的设备树文件命名遵循一定的结构格式。一般的命�
 ```
 
 ### 1. **`<chip-name>`**：硬件平台的芯片型号
-   - 例如：
-     - `tegra210`：Jetson Nano
-     - `tegra186`：Jetson TX2
-     - `tegra194`：Jetson Xavier NX 和 Jetson AGX Xavier
-     - `tegra234`：Jetson Orin 系列
+
+- 例如：
+   - `tegra210`：Jetson Nano
+   - `tegra186`：Jetson TX2
+   - `tegra194`：Jetson Xavier NX 和 Jetson AGX Xavier
+   - `tegra234`：Jetson Orin 系列
 
 ### 2. **`<platform-name>`**：平台的代号或设备名称
-   - 例如：
-     - `p2597`：Jetson Nano 2GB
-     - `p2598`：Jetson Nano 4GB
-     - `p3668`：Jetson Xavier NX
-     - `p3737`：Jetson Orin 系列
-     - `p2771`：Jetson TX2 系列
+
+- 例如：
+   - `p2597`：Jetson Nano 2GB
+   - `p2598`：Jetson Nano 4GB
+   - `p3668`：Jetson Xavier NX
+   - `p3737`：Jetson Orin 系列
+   - `p2771`：Jetson TX2 系列
 
 ### 3. **`<board-id>`**：板卡硬件 ID 或型号
+
    - 用于标识特定的硬件版本或修订。
    - 例如：
      - `a00-00`：硬件初始版本
      - `a01-00`：硬件修订版本
 
 ### 4. **`<revision>`**：设备树文件的修订版本
+
    - 表示该设备树文件的版本或修订信息，通常以 `-00`、`-01` 等形式出现。
 
 ## Jetson 产品线设备树命名

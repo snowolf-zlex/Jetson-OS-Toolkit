@@ -66,4 +66,3 @@ sudo ./flash.sh jetson-nano-emmc mmcblk0p1
 ```
 
 或者，按照常规方式使用SDKManager进行烧录后，替换`tegra210-p3448-0002-p3449-0000-b00.dtb`文件。
-
