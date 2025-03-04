@@ -34,7 +34,7 @@
 cd /dev/sda
 
 # 克隆脚本
-git clone https://github.com/snowolf-zlex/Jetson-OS-Toolkit/blob/main/Jetson_Device_Backup.sh
+git clone https://github.com/snowolf-zlex/Jetson-OS-Toolkit/Backup_Tools/Jetson_Device_Backup.sh
 ```
 
 ### 2. 执行脚本，确认要备份的磁盘
