@@ -172,7 +172,6 @@ function restore_image() {
 function main() {
     check_os_type
     check_commands
-    list_disks
 
     # 获取镜像路径
     local IMAGE_PATH
@@ -183,6 +182,7 @@ function main() {
         check_xz_command
     fi
 
+    list_disks
     # 获取目标设备地址
     local DEVICE_ADDRESS
     DEVICE_ADDRESS=$(get_device_address)
