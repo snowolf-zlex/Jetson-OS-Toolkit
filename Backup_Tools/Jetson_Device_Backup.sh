@@ -66,7 +66,7 @@ function get_backup_path() {
 
 # 提示用户输入备份文件名
 function get_backup_name() {
-    read -e -p "请输入备份文件名称 (例如 jetson_orin_nx_jp5.1.4): " BACKUP_NAME
+    read -e -p "请输入备份文件名称 (例如 jetson_orin_nx_jp514): " BACKUP_NAME
     echo "$BACKUP_NAME"
 }
 
@@ -147,7 +147,7 @@ function main() {
 
     local EXTENSION
     if [[ "$COMPRESS_OPTION" == "y" ]]; then
-        EXTENSION="xz"
+        EXTENSION="img.xz"
     else
         EXTENSION="img"
     fi
