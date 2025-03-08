@@ -47,6 +47,7 @@ uhs-mask = <0xc>;
 参考下图
 
 ![alt text](dts.png)
+<img width="539" alt="image" src="https://github.com/user-attachments/assets/0380d800-044f-4deb-802d-05cd9c27390f" />
 
 ### 5. 编译dtb文件
 
