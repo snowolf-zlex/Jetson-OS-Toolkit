@@ -6,7 +6,7 @@
 	interrupt-parent = <0x1>;
 	#address-cells = <0x2>;
 	#size-cells = <0x2>;
-	nvidia,dtbbuildtime = "Jun 11 2024", "16:09:23";
+	nvidia,dtbbuildtime = "Nov  4 2024", "23:42:51";
 	nvidia,boardids = "3448";
 	nvidia,proc-boardid = "3448";
 	nvidia,pmu-boardid = "3448";
@@ -5801,14 +5801,14 @@
 		pinctrl-7 = <0x93>;
 		vqmmc-supply = <0x3b>;
 		vmmc-supply = <0x4c>;
-        cd-gpios = <0x5b 0xc2 0x0>;
-        sd-uhs-sdr104;
-        sd-uhs-sdr50;
-        sd-uhs-sdr25;
-        sd-uhs-sdr12;
+		cd-gpios = <0x5b 0xc2 0x0>;
+		sd-uhs-sdr104;
+		sd-uhs-sdr50;
+		sd-uhs-sdr25;
+		sd-uhs-sdr12;
 		mmc-ddr-1_8v;
-        no-mmc;
-        uhs-mask = <0xc>;
+		no-mmc;
+		uhs-mask = <0xc>;
 		linux,phandle = <0xba>;
 		phandle = <0xba>;
 
