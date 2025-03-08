@@ -21,7 +21,7 @@ sudo apt-get install device-tree-compiler
 
 ```shell
 # 针对不同jetpack，修改对应路径
-cd ~/nvidia/nvidia_sdk/JetPack_4.6_Linux_JETSON_NANO_TARGETS/Linux_for_Tegra/kernel/dtb 
+cd ~/nvidia/nvidia_sdk/JetPack_4.6.6_Linux_JETSON_NANO_TARGETS/Linux_for_Tegra/kernel/dtb 
 sudo dtc -I dtb -O dts -o tegra210-p3448-0002-p3449-0000-b00.dts tegra210-p3448-0002-p3449-0000-b00.dtb
 ```
 
