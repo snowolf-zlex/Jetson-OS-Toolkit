@@ -13,46 +13,16 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # 获取当前操作系统类型
 OS_TYPE=$(uname)
 
-# 检查操作系统类型
-function check_os_type() {
-    echo -e "${GREEN}当前操作系统为: $OS_TYPE${NC}"
-    if [[ "$OS_TYPE" != "Linux" && "$OS_TYPE" != "Darwin" ]]; then
-        echo -e "${RED}错误: 不支持的操作系统: $OS_TYPE${NC}"
-        exit 1
+# 检查必要命令
+function check_requirements() {
+    if [[ "$OS_TYPE" == "Linux" && ! -x "$(command -v blockdev)" ]]; then
+        echo -e "${YELLOW}警告: 建议安装 util-linux 包以获得更准确的磁盘大小检测${NC}"
     fi
-}
-
-# 显示磁盘列表（根据操作系统类型）
-function list_disks() {
-    echo -e "\n${YELLOW}=== 可用磁盘列表 ===${NC}"
-    if [[ "$OS_TYPE" == "Linux" ]]; then
-        lsblk -d -n -e 1,2,7 | grep -v "SWAP" | awk '{print $1" "$4}'
-    elif [[ "$OS_TYPE" == "Darwin" ]]; then
-        diskutil list | grep -A 5 "/dev/disk"
-    fi
-    echo -e "${YELLOW}====================${NC}\n"
-}
-
-# 验证磁盘设备是否存在
-function validate_device() {
-    local DEVICE=$1
-    if [[ "$OS_TYPE" == "Linux" ]]; then
-        if [[ ! -b "$DEVICE" ]]; then
-            echo -e "${RED}错误: 设备 $DEVICE 不存在或不是块设备${NC}"
-            return 1
-        fi
-    elif [[ "$OS_TYPE" == "Darwin" ]]; then
-        if ! diskutil info "$DEVICE" &>/dev/null; then
-            echo -e "${RED}错误: 设备 $DEVICE 不存在${NC}"
-            return 1
-        fi
-    fi
-    return 0
 }
 
 # 获取磁盘容量（返回字节数）
@@ -61,121 +31,103 @@ function get_disk_size() {
     local DISK_SIZE=0
     
     if [[ "$OS_TYPE" == "Linux" ]]; then
-        DISK_SIZE=$(lsblk -b -n -o SIZE "$DEVICE" 2>/dev/null | tr -d '\n')
+        DISK_SIZE=$(blockdev --getsize64 "$DEVICE" 2>/dev/null || 
+                   lsblk -b -n -o SIZE "$DEVICE" 2>/dev/null | head -1)
     elif [[ "$OS_TYPE" == "Darwin" ]]; then
-        # 获取磁盘总字节数（更精确的方法）
-        DISK_SIZE=$(diskutil info "$DEVICE" 2>/dev/null | awk '/Disk Size:/{print $3$4}' | tr -d '\n')
+        DISK_SIZE=$(diskutil info "$DEVICE" 2>/dev/null | 
+                   awk '/Disk Size:|Total Size:/{print $3$4}')
         if [[ "$DISK_SIZE" == *GB ]]; then
-            DISK_SIZE=$(echo "${DISK_SIZE%GB} * 1000 * 1000 * 1000" | bc | cut -d. -f1)
+            DISK_SIZE=$(echo "${DISK_SIZE%GB} * 1000 * 1000 * 1000" | bc)
         elif [[ "$DISK_SIZE" == *MB ]]; then
-            DISK_SIZE=$(echo "${DISK_SIZE%MB} * 1000 * 1000" | bc | cut -d. -f1)
+            DISK_SIZE=$(echo "${DISK_SIZE%MB} * 1000 * 1000" | bc)
         elif [[ "$DISK_SIZE" == *KB ]]; then
-            DISK_SIZE=$(echo "${DISK_SIZE%KB} * 1000" | bc | cut -d. -f1)
+            DISK_SIZE=$(echo "${DISK_SIZE%KB} * 1000" | bc)
         fi
     fi
     
-    # 确保返回纯数字
     echo "$DISK_SIZE" | tr -d -c '[:digit:]'
 }
 
-# 检查目标磁盘容量是否满足条件
-function check_disk_capacity() {
-    local SOURCE_DEVICE=$1
-    local TARGET_DEVICE=$2
-    
-    local SOURCE_SIZE=$(get_disk_size "$SOURCE_DEVICE")
-    local TARGET_SIZE=$(get_disk_size "$TARGET_DEVICE")
-    
-    if [[ -z "$SOURCE_SIZE" || -z "$TARGET_SIZE" ]]; then
-        echo -e "${RED}错误: 无法获取磁盘大小${NC}"
-        exit 1
-    fi
-    
-    if [[ "$TARGET_SIZE" -lt "$SOURCE_SIZE" ]]; then
-        echo -e "${RED}错误: 目标磁盘容量 ($(numfmt --to=iec $TARGET_SIZE)) 小于源磁盘容量 ($(numfmt --to=iec $SOURCE_SIZE))${NC}"
-        exit 1
-    fi
-    
-    echo -e "${GREEN}容量检查通过: 目标磁盘 ($(numfmt --to=iec $TARGET_SIZE)) >= 源磁盘 ($(numfmt --to=iec $SOURCE_SIZE))${NC}"
-}
-
-# 提示用户选择磁盘设备
-function get_device_address() {
-    local PROMPT=$1
-    local DEVICE_ADDRESS
-    
-    while true; do
-        read -p "$PROMPT (例如 /dev/sdb 或 /dev/disk2): " DEVICE_ADDRESS
-        if validate_device "$DEVICE_ADDRESS"; then
-            break
+# 人类可读的容量显示
+function format_size() {
+    local SIZE=$1
+    if [[ "$SIZE" -gt 0 ]]; then
+        if command -v numfmt >/dev/null; then
+            numfmt --to=iec "$SIZE"
+        else
+            echo "$((SIZE/1024/1024)) MB"
         fi
-    done
-    
-    echo "$DEVICE_ADDRESS"
+    else
+        echo "未知大小"
+    fi
 }
 
-# 克隆磁盘到目标磁盘
-function clone_device() {
-    local SOURCE_DEVICE=$1
-    local TARGET_DEVICE=$2
-    
-    echo -e "\n${YELLOW}=== 克隆操作摘要 ===${NC}"
-    echo -e "源磁盘: $SOURCE_DEVICE ($(numfmt --to=iec $(get_disk_size "$SOURCE_DEVICE")))"
-    echo -e "目标磁盘: $TARGET_DEVICE ($(numfmt --to=iec $(get_disk_size "$TARGET_DEVICE")))"
-    echo -e "${YELLOW}====================${NC}\n"
-    
-    echo -e "${RED}警告: 这将完全覆盖目标磁盘 ${TARGET_DEVICE} 上的所有数据!${NC}"
-    read -p "确认要继续吗? (输入大写YES确认): " CONFIRM
-    if [[ "$CONFIRM" != "YES" ]]; then
-        echo -e "${GREEN}操作已取消。${NC}"
-        exit 0
-    fi
-    
-    echo -e "\n${GREEN}开始克隆 ${SOURCE_DEVICE} 到 ${TARGET_DEVICE}...${NC}"
-    
-    # 计算预计时间（仅供参考）
-    local SOURCE_SIZE=$(get_disk_size "$SOURCE_DEVICE")
-    local ESTIMATED_TIME=$((SOURCE_SIZE / (50 * 1024 * 1024))) # 假设50MB/s的速度
-    
-    echo -e "预计需要约 ${ESTIMATED_TIME} 秒 (基于50MB/s的传输速度)"
-    echo -e "开始时间: $(date)"
-    
-    # 执行克隆
+# 显示磁盘列表
+function list_disks() {
+    echo -e "\n${YELLOW}=== 可用磁盘列表 ===${NC}"
     if [[ "$OS_TYPE" == "Linux" ]]; then
-        sudo dd if="$SOURCE_DEVICE" of="$TARGET_DEVICE" bs=4M status=progress
+        lsblk -d -n -e 1,2,7 | grep -v "SWAP" | awk '{printf "%s %s\n", $1, $4}'
     elif [[ "$OS_TYPE" == "Darwin" ]]; then
-        sudo dd if="$SOURCE_DEVICE" of="$TARGET_DEVICE" bs=4m
+        diskutil list | grep -A 5 "/dev/disk"
     fi
-    
-    # 同步磁盘缓存
-    sync
-    
-    echo -e "\n${GREEN}克隆完成! 结束时间: $(date)${NC}"
+    echo -e "${YELLOW}====================${NC}\n"
+}
+
+# 验证磁盘设备
+function validate_device() {
+    local DEVICE=$1
+    if [[ "$OS_TYPE" == "Linux" ]]; then
+        [[ -b "$DEVICE" ]] && return 0
+    elif [[ "$OS_TYPE" == "Darwin" ]]; then
+        diskutil info "$DEVICE" &>/dev/null && return 0
+    fi
+    echo -e "${RED}错误: 设备 $DEVICE 不存在${NC}"
+    return 1
 }
 
 # 主函数
 function main() {
-    check_os_type
-    
-    # 显示磁盘列表
+    check_requirements
     list_disks
     
-    # 获取源磁盘和目标磁盘
-    local SOURCE_DEVICE=$(get_device_address "请输入源磁盘设备地址")
-    local TARGET_DEVICE=$(get_device_address "请输入目标磁盘设备地址")
+    # 获取源磁盘
+    while true; do
+        read -p "请输入源磁盘设备地址: " SOURCE_DEVICE
+        validate_device "$SOURCE_DEVICE" && break
+    done
     
-    # 检查是否是同一个设备
-    if [[ "$SOURCE_DEVICE" == "$TARGET_DEVICE" ]]; then
-        echo -e "${RED}错误: 源磁盘和目标磁盘不能是同一个设备${NC}"
+    # 获取目标磁盘
+    while true; do
+        read -p "请输入目标磁盘设备地址: " TARGET_DEVICE
+        [[ "$TARGET_DEVICE" != "$SOURCE_DEVICE" ]] && validate_device "$TARGET_DEVICE" && break
+        echo -e "${RED}错误: 目标磁盘不能与源磁盘相同${NC}"
+    done
+    
+    # 检查容量
+    SOURCE_SIZE=$(get_disk_size "$SOURCE_DEVICE")
+    TARGET_SIZE=$(get_disk_size "$TARGET_DEVICE")
+    
+    echo -e "\n${YELLOW}=== 操作确认 ===${NC}"
+    echo -e "源磁盘: $SOURCE_DEVICE ($(format_size "$SOURCE_SIZE"))"
+    echo -e "目标磁盘: $TARGET_DEVICE ($(format_size "$TARGET_SIZE"))"
+    
+    if [[ "$TARGET_SIZE" -lt "$SOURCE_SIZE" ]]; then
+        echo -e "${RED}错误: 目标磁盘空间不足${NC}"
         exit 1
     fi
     
-    # 检查磁盘容量
-    check_disk_capacity "$SOURCE_DEVICE" "$TARGET_DEVICE"
+    read -p "确认要开始克隆吗? (输入大写YES确认): " CONFIRM
+    [[ "$CONFIRM" != "YES" ]] && exit 0
     
-    # 执行克隆
-    clone_device "$SOURCE_DEVICE" "$TARGET_DEVICE"
+    echo -e "\n${GREEN}开始克隆...${NC}"
+    if [[ "$OS_TYPE" == "Linux" ]]; then
+        sudo dd if="$SOURCE_DEVICE" of="$TARGET_DEVICE" bs=4M status=progress
+    else
+        sudo dd if="$SOURCE_DEVICE" of="$TARGET_DEVICE" bs=4m
+    fi
+    sync
+    
+    echo -e "\n${GREEN}克隆完成!${NC}"
 }
 
-# 调用主函数
 main
