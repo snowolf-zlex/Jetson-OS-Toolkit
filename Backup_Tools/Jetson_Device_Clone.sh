@@ -48,7 +48,7 @@ function get_disk_size() {
     echo "$DISK_SIZE" | tr -d -c '[:digit:]'
 }
 
-# 人类可读的容量显示
+# 可读容量显示
 function format_size() {
     local SIZE=$1
     if [[ "$SIZE" -gt 0 ]]; then
