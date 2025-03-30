@@ -92,13 +92,13 @@ function main() {
     
     # 获取源磁盘
     while true; do
-        read -p "请输入源磁盘设备地址: " SOURCE_DEVICE
+        read -p "请输入源磁盘设备地址(/dev/sda): " SOURCE_DEVICE
         validate_device "$SOURCE_DEVICE" && break
     done
     
     # 获取目标磁盘
     while true; do
-        read -p "请输入目标磁盘设备地址: " TARGET_DEVICE
+        read -p "请输入目标磁盘设备地址(/dev/nvme0n1): " TARGET_DEVICE
         [[ "$TARGET_DEVICE" != "$SOURCE_DEVICE" ]] && validate_device "$TARGET_DEVICE" && break
         echo -e "${RED}错误: 目标磁盘不能与源磁盘相同${NC}"
     done
