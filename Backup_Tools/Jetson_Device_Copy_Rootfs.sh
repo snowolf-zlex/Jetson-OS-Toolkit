@@ -6,53 +6,98 @@
 # 适用范围：Linux
 # 脚本作者：Snowolf
 # 创建日期：2024-11-02
+# 修改日期：2025-04-07
 ####################################
 
-  # 1. 强制卸载 U 盘所有分区
-  #  1 # 卸载所有可能自动挂载的分区
-  #  sudo umount /dev/sda*
+set -e  # 遇到错误立即退出
 
-  # 2. 清除旧分区表并创建单一分区 (GPT)
-  # 我们将使用 parted 工具来快速完成：
+# 颜色定义（用于提示信息）
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
 
-  #  1 # 1. 创建新的 GPT 分区表（这会清除所有 17 个旧分区）
-  #  sudo parted /dev/sda mklabel gpt -s
-  #  
-  #  # 2. 创建一个使用 100% 空间的 ext4 主分区
-  # sudo parted -a optimal /dev/sda mkpart primary ext4 0% 100%
-
-  # 3. 格式化为 ext4 文件系统
-  # ext4 是 Linux 的原生系统，支持软链接和权限管理，这对于安装 CUDA 至关重要。
-  # # 格式化新创建的分区（通常是 /dev/sda1）
-  # sudo mkfs.ext4 -F /dev/sda1
-
-  # 4. 挂载到固定位置
-  # 我们创建一个专门的挂载点 /mnt/ext_storage：
-
-  #  1 # 1. 创建挂载点
-  # sudo mkdir -p /mnt/ext_storage
-  #  3
-  #  4 # 2. 挂载分区
-  # sudo mount /dev/sda1 /mnt/ext_storage
-  #  6
-  #  7 # 3. 设置权限（确保你的用户 nvidia 可以写入）
-  #  sudo chown -R nvidia:nvidia /mnt/ext_storage
+# 检查是否以 root 或 sudo 运行
+if [[ $EUID -ne 0 ]]; then
+   echo -e "${RED}错误：此脚本需要 root 权限，请使用 sudo 运行。${NC}" 
+   exit 1
+fi
 
 # 显示可用的存储设备
-echo "可用的存储设备:"
-lsblk
+echo -e "${GREEN}可用的存储设备:${NC}"
+lsblk -o NAME,SIZE,TYPE,MOUNTPOINT
 
-# 提示用户输入要挂载的目标存储设备
-read -p "请输入要挂载的目标存储设备（例如/dev/sda1）: " DEVICE
+# 提示用户输入目标磁盘（如 /dev/sda，注意不是分区）
+echo ""
+read -p "请输入要作为系统备份的【目标磁盘】（例如 /dev/sda，请注意这将清除磁盘上的所有数据）: " DISK
 
-# 挂载目标存储设备
-sudo mount "$DEVICE" /mnt
+# 检查磁盘是否存在
+if [[ ! -b "$DISK" ]]; then
+    echo -e "${RED}错误：磁盘 $DISK 不存在。${NC}"
+    exit 1
+fi
 
-# 默认的排除目录
+# 确认操作
+echo -e "${YELLOW}警告：您选择的磁盘 $DISK 上的所有数据将被永久删除！${NC}"
+read -p "是否继续？(输入 yes 继续，其他任意键退出): " CONFIRM
+if [[ "$CONFIRM" != "yes" ]]; then
+    echo "操作已取消。"
+    exit 0
+fi
+
+# 1. 卸载该磁盘上的所有分区
+echo -e "${GREEN}正在卸载 $DISK 上的所有分区...${NC}"
+for part in $(ls ${DISK}* 2>/dev/null | grep -E "${DISK}[0-9]+"); do
+    umount "$part" 2>/dev/null || true
+done
+
+# 2. 创建新的 GPT 分区表并建立单一分区
+echo -e "${GREEN}正在为 $DISK 创建 GPT 分区表...${NC}"
+parted -s "$DISK" mklabel gpt
+
+echo -e "${GREEN}正在创建占满整个磁盘的 ext4 分区...${NC}"
+parted -s -a optimal "$DISK" mkpart primary ext4 0% 100%
+
+# 等待分区表更新
+sleep 2
+partprobe "$DISK" 2>/dev/null || true
+
+# 确定新创建的分区（通常是 ${DISK}1）
+PARTITION="${DISK}1"
+if [[ ! -b "$PARTITION" ]]; then
+    echo -e "${RED}错误：无法找到新创建的分区 $PARTITION。${NC}"
+    exit 1
+fi
+
+# 3. 格式化为 ext4 文件系统
+echo -e "${GREEN}正在格式化分区 $PARTITION 为 ext4...${NC}"
+mkfs.ext4 -F "$PARTITION"
+
+# 4. 挂载到 /mnt（如果 /mnt 非空，给出警告）
+if mountpoint -q /mnt; then
+    echo -e "${YELLOW}警告：/mnt 已经被挂载，将先卸载原挂载点。${NC}"
+    umount /mnt
+fi
+if [ "$(ls -A /mnt)" ]; then
+    echo -e "${YELLOW}警告：/mnt 目录非空，可能会影响复制。按 Ctrl+C 取消，或等待 5 秒继续...${NC}"
+    sleep 5
+fi
+
+echo -e "${GREEN}正在挂载 $PARTITION 到 /mnt...${NC}"
+mount "$PARTITION" /mnt
+
+# 可选：设置权限，使普通用户 nvidia 可写（如果存在该用户）
+if id "nvidia" &>/dev/null; then
+    chown -R nvidia:nvidia /mnt
+    echo -e "${GREEN}已将 /mnt 的所有者设为 nvidia 用户。${NC}"
+fi
+
+# 5. 开始复制根文件系统
+echo -e "${GREEN}开始复制根文件系统到 $PARTITION ...${NC}"
 EXCLUDES="--exclude={/dev/,/proc/,/sys/,/tmp/,/run/,/mnt/,/media/*,/lost+found}"
+rsync -axHAWX --numeric-ids --info=progress2 $EXCLUDES / /mnt
 
-# 复制根文件系统到目标存储设备
-sudo rsync -axHAWX --numeric-ids --info=progress2 $EXCLUDES / /mnt
-
-# 保持目标存储设备挂载以供后续操作
-echo "目标存储设备已挂载在/mnt，并已完成文件复制。"
+# 同步并完成
+sync
+echo -e "${GREEN}系统复制完成！目标磁盘 $DISK 已准备就绪，分区挂载在 /mnt。${NC}"
+echo -e "${YELLOW}您可以检查 /mnt 中的内容，然后手动卸载（umount /mnt）并拔出磁盘。${NC}"
