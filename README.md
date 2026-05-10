@@ -4,4 +4,5 @@
 
 
 
-
+# Jetson Nano PCN
+https://developer.nvidia.com/downloads/embedded/L4T/r32_Release_v7.5/overlay_32.7.5_PCN211181.tbz2
